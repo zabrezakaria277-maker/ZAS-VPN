@@ -87,6 +87,7 @@ jobs:
         java-version: '21'
 
     - name: Decode Keystore
+      if: false
       uses: timheuer/base64-to-file@v2.0.0
       id: android_keystore
       with:
@@ -99,8 +100,7 @@ jobs:
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
         chmod 755 gradlew
         ./gradlew licenseFdroidReleaseReport
-        ./gradlew assembleRelease -Pandroid.injected.signing.store.file=${{ steps.android_keystore.outputs.filePath }} -Pandroid.injected.signing.store.password=${{ secrets.APP_KEYSTORE_PASSWORD }} -Pandroid.injected.signing.key.alias=${{ secrets.APP_KEYSTORE_ALIAS }} -Pandroid.injected.signing.key.password=${{ secrets.APP_KEY_PASSWORD }}
-    
+        ./gradlew assembleFdroidDebug
     - name: Upload arm64-v8a APK
       uses: actions/upload-artifact@v7
       if: ${{  success() }}
@@ -128,6 +128,11 @@ jobs:
       with:
         name: universal-apk
         path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/*/release/*universal*.apk
+    - name: Upload debug APKs
+        uses: actions/upload-artifact@v7
+        with:
+          name: debug-apks
+          path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/**/*.apk
 
   sign-and-release:
     needs: build
