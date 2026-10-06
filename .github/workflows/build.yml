@@ -129,10 +129,10 @@ jobs:
         name: universal-apk
         path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/*/release/*universal*.apk
     - name: Upload debug APKs
-        uses: actions/upload-artifact@v7
-        with:
-          name: debug-apks
-          path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/**/*.apk
+      uses: actions/upload-artifact@v7
+      with:
+        name: debug-apks
+        path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/**/*.apk
 
   sign-and-release:
     needs: build
