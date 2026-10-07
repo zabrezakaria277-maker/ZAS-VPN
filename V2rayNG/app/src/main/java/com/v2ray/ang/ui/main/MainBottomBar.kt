@@ -40,6 +40,7 @@ import com.v2ray.ang.ui.compose.colorFabActive
 import com.v2ray.ang.ui.compose.colorFabInactiveDark
 import com.v2ray.ang.ui.compose.colorFabInactiveLight
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.shape.CircleShape
 
 @Composable
 fun MainBottomBar(
@@ -96,10 +97,11 @@ fun MainBottomBar(
                 onAction(MainAction.ToggleService)
             },
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(end = 24.dp)
-                .offset(y = (-28).dp)
+                .align(Alignment.TopCenter)
+                .size(72.dp)
+                .offset(y = (-36).dp)
                 .navigationBarsPadding(),
+            shape = CircleShape,
             containerColor = if (isRunning) colorFabActive
             else if (isDarkTheme) colorFabInactiveDark
             else colorFabInactiveLight
@@ -112,7 +114,7 @@ fun MainBottomBar(
                 ),
                 tint = Color.White,
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(32.dp)
                     .graphicsLayer { rotationZ = rotationAnim.value }
             )
         }
