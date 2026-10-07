@@ -3,7 +3,7 @@
     <string name="app_name" translatable="false">ZAS-VPN</string>
     <string name="app_widget_name">Switch</string>
     <string name="app_tile_name">Switch</string>
-    <string name="app_tile_first_use">Add a profile in the app before using this feature.</string>
+    <string name="app_tile_first_use">AJOUTER UN SERVEUR POUR COMMENCER.</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="migration_success">Data migration succeeded!</string>
@@ -14,7 +14,7 @@
     <string name="pull_down_to_refresh">Please pull down to refresh!</string>
 
     <!-- Notifications -->
-    <string name="notification_channel_service">v2rayNG service</string>
+    <string name="notification_channel_service">ZAS VPN</string>
     <string name="notification_channel_subscription_updates">Subscription updates</string>
     <string name="notification_channel_connection_checks">Connection checks</string>
     <string name="notification_action_stop_v2ray">Stop</string>
@@ -27,11 +27,11 @@
     <string name="toast_services_failure">Failed to start service</string>
 
     <!--ServerActivity-->
-    <string name="title_server">Config</string>
-    <string name="menu_item_add_config">Add config</string>
-    <string name="menu_item_save_config">Save config</string>
-    <string name="menu_item_edit_config">Edit config</string>
-    <string name="menu_item_del_config">Delete config</string>
+    <string name="title_server">SERVEURS</string>
+    <string name="menu_item_add_config">AJOUTER UN SERVEUR</string>
+    <string name="menu_item_save_config">ENREGISTRER</string>
+    <string name="menu_item_edit_config">MODIFIER</string>
+    <string name="menu_item_del_config">SUPPRIMER</string>
     <string name="menu_item_import_config_qrcode">Import from QR code</string>
     <string name="menu_item_import_config_clipboard">Import from Clipboard</string>
     <string name="menu_item_import_config_local">Import from a local file</string>
