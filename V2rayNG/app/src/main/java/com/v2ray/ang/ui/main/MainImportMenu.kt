@@ -67,7 +67,11 @@ fun ImportMenuContent(onAction: (MainAction) -> Unit) = AppDropdownMenuItems(
 
 @Composable
 fun MoreMenuContent(onSelected: (MainMoreMenuAction) -> Unit) = AppDropdownMenuItems(
-    items = MainMoreMenuAction.entries,
+items = listOf(
+        MainMoreMenuAction.RestartService,
+        MainMoreMenuAction.ExportAll,
+        MainMoreMenuAction.TestAll
+    ),
     labelRes = { it.labelRes },
     onSelected = onSelected
 )
