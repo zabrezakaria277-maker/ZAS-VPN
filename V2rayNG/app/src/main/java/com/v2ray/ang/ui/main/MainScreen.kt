@@ -188,19 +188,18 @@ fun MainScreen(
             floatingActionButton = {},
         ) { innerPadding ->
             val layoutDirection = LocalLayoutDirection.current
-ZasHeader(
-    isRunning = isRunning,
-    serverGuid = selectedGuid,
-    statusText = displayText,
-    onToggle = { onAction(MainAction.ToggleService) }
-)
             if (groups.isNotEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
                 ) {
-                    if (groups.size > 1) {
+ZasHeader(
+    isRunning = isRunning,
+    serverGuid = selectedGuid,
+    statusText = displayText,
+    onToggle = { onAction(MainAction.ToggleService) }
+)                    if (groups.size > 1) {
                         GroupTabBar(
                             groups = groups,
                             selectedTabIndex = pagerState.currentPage.coerceIn(0, groups.lastIndex),
