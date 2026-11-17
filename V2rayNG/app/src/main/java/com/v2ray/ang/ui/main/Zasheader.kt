@@ -38,7 +38,7 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
-private val CardBg = Color(0xFF0E1A33)
+private val CardBg = Color(0xCC0E1A33)
 private val Blue = Color(0xFF2F80FF)
 private val Green = Color(0xFF22D3A0)
 private val Gold = Color(0xFFFFC107)
