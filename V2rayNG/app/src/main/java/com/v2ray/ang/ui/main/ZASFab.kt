@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.v2ray.ang.enums.EConfigType
 
 @Composable
-fun ZasFab(onAction: (MainAction) -> Unit) {
+fun ZasFab(onAction: (MainAction) -> Unit, onExport: () -> Unit = {}) {
     var open by remember { mutableStateOf(false) }
     var importOpen by remember { mutableStateOf(false) }
 
@@ -42,7 +42,7 @@ fun ZasFab(onAction: (MainAction) -> Unit) {
         ) {
             if (!importOpen) {
                 ZasMenuRow("📥", "Importer") { importOpen = true }
-                ZasMenuRow("📦", "Exporter") { close(); onAction(MainAction.ExportAll) }
+                ZasMenuRow("📦", "Exporter") { close(); onExport() }
                 ZasMenuRow("➕", "Ajouter un serveur") {
                     close(); onAction(MainAction.ImportManually(EConfigType.VMESS.value))
                 }
