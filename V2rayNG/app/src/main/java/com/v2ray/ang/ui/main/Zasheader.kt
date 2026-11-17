@@ -81,7 +81,7 @@ fun ZasHeader(
             .networkOperatorName.ifBlank { "—" }
     }
     val netType = remember(isRunning) { networkType(context) }
-    var showNet by rememberSaveable { mutableStateOf(true) }
+    var showNet by rememberSaveable { mutableStateOf(false) }
 
     Column(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
@@ -139,7 +139,7 @@ fun ZasHeader(
 private fun PowerButton(connected: Boolean, onClick: () -> Unit) {
     val c by animateColorAsState(if (connected) Green else Blue, label = "power")
     Box(
-        Modifier.size(150.dp)
+        Modifier.size(120.dp)
             .drawBehind {
                 drawCircle(
                     Brush.radialGradient(listOf(c.copy(alpha = 0.35f), Color.Transparent)),
