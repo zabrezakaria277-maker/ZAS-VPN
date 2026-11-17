@@ -185,7 +185,7 @@ fun MainScreen(
                 )
             },
             bottomBar = {},
-            floatingActionButton = {},
+            floatingActionButton = { ZasFab(onAction = onAction) },
         ) { innerPadding ->
             val layoutDirection = LocalLayoutDirection.current
             if (groups.isNotEmpty()) {
