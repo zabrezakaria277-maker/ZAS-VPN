@@ -139,6 +139,14 @@ fun MainScreen(
             onRemove = removeServer,
         )
     }
+        var showZasExport by remember { mutableStateOf(false) }
+    if (showZasExport) {
+        ZasExportDialog(
+            mainViewModel = mainViewModel,
+            groupId = uiState.selectedGroupId,
+            onDismiss = { showZasExport = false }
+        )
+    }
     if (shareQRCodeBitmap != null) {
         QRCodeDialog(bitmap = shareQRCodeBitmap, onDismiss = { onAction(MainAction.DismissQRCodeDialog) })
     }
@@ -192,7 +200,7 @@ fun MainScreen(
                 )
             },
             bottomBar = {},
-            floatingActionButton = { ZasFab(onAction = onAction) },
+            floatingActionButton = { ZasFab(onAction = onAction, onExport = { showZasExport = true }) },
         ) { innerPadding ->
             val layoutDirection = LocalLayoutDirection.current
             if (groups.isNotEmpty()) {
