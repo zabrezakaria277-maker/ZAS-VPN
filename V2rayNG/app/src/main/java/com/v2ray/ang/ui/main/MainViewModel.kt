@@ -289,7 +289,7 @@ class MainViewModel(
             is MainAction.SelectServer -> updateSelectedGuid(action.guid)
             is MainAction.RemoveServer -> removeServerAndRefresh(action.guid)
             is MainAction.Search -> filterConfig(action.query)
-            is MainAction.ImportBatchConfig -> importBatchConfig(action.configText)
+            is MainAction.ImportBatchConfig -> importZasOrBatch(action.configText)
             MainAction.LocateHandled -> consumeLocateTarget()
             is MainAction.ShareQRCode -> {
                 val bitmap = dataSource.share2QRCode(action.guid)
@@ -573,6 +573,30 @@ class MainViewModel(
         }
     }
 
+        // ---------- ZAS export / import ----------
+    internal suspend fun zasBuildPayload(context: Context, guids: List<String>): String =
+        withContext(ioDispatcher) {
+            val count = dataSource.shareNonCustomConfigsToClipboard(guids)
+            if (count > 0) Utils.getClipboard(context) else ""
+        }
+
+    private fun importZasOrBatch(text: String) {
+        if (!ZasCrypto.isZas(text)) {
+            importBatchConfig(text)
+            return
+        }
+        val pkg = ZasCrypto.open(text)
+        if (pkg == null) {
+            toastError("Fichier ZAS invalide ou corrompu")
+            return
+        }
+        if (pkg.expiresAt > 0 && System.currentTimeMillis() > pkg.expiresAt) {
+            toastError("Ce fichier a expiré")
+            return
+        }
+        if (pkg.note.isNotBlank()) toast(pkg.note)
+        importBatchConfig(pkg.links)
+    }
     private fun exportAllAsync() {
         launchLoading {
             withContext(ioDispatcher) {
