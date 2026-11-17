@@ -1,5 +1,11 @@
 package com.v2ray.ang.ui.main
-
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.v2ray.ang.R
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -143,7 +149,14 @@ fun MainScreen(
     ZasDrawerContent(onClose = { scope.launch { drawerState.close() } })
 }
     ) {
-        Scaffold(
+                    Scaffold(
+            modifier = Modifier.fillMaxSize().paint(
+                painterResource(R.drawable.zas_background),
+                sizeToIntrinsics = false,
+                contentScale = ContentScale.Crop,
+                colorFilter = ColorFilter.tint(Color.Black.copy(alpha = 0.35f), BlendMode.SrcOver)
+            ),
+            containerColor = Color.Transparent,
             contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
             topBar = {
                 MainTopBar(
