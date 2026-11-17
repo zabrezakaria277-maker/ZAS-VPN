@@ -199,7 +199,8 @@ ZasHeader(
     serverGuid = selectedGuid,
     statusText = displayText,
     onToggle = { onAction(MainAction.ToggleService) }
-)                    if (groups.size > 1) {
+)                  
+                    if (groups.size > 1) {
                         GroupTabBar(
                             groups = groups,
                             selectedTabIndex = pagerState.currentPage.coerceIn(0, groups.lastIndex),
