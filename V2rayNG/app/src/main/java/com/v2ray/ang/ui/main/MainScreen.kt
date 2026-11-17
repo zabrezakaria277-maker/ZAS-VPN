@@ -195,7 +195,12 @@ fun MainScreen(
             floatingActionButton = {},
         ) { innerPadding ->
             val layoutDirection = LocalLayoutDirection.current
-
+ZasHeader(
+    isRunning = isRunning,
+    serverGuid = selectedGuid,
+    statusText = displayText,
+    onToggle = { onAction(MainAction.ToggleService) }
+)
             if (groups.isNotEmpty()) {
                 Column(
                     modifier = Modifier
