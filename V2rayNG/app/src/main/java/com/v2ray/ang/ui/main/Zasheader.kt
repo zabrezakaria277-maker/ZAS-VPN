@@ -1,6 +1,7 @@
 package com.v2ray.ang.ui.main
 
 import android.content.Context
+import android.net.TrafficStats
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.telephony.TelephonyManager
@@ -75,6 +76,21 @@ fun ZasHeader(
         ip = r?.first ?: "—"
         country = r?.second ?: "—"
     }
+    var up by remember { mutableStateOf(0L) }
+var down by remember { mutableStateOf(0L) }
+LaunchedEffect(isRunning) {
+    up = 0; down = 0
+    if (!isRunning) return@LaunchedEffect
+    val uid = android.os.Process.myUid()
+    val tx0 = TrafficStats.getUidTxBytes(uid)
+    val rx0 = TrafficStats.getUidRxBytes(uid)
+    if (tx0 < 0 || rx0 < 0) return@LaunchedEffect
+    while (true) {
+        delay(1000)
+        up = (TrafficStats.getUidTxBytes(uid) - tx0).coerceAtLeast(0)
+        down = (TrafficStats.getUidRxBytes(uid) - rx0).coerceAtLeast(0)
+    }
+}
 
     val operator = remember(isRunning) {
         (context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager)
@@ -107,8 +123,8 @@ fun ZasHeader(
             Text(formatTime(seconds), color = Color.White, fontSize = 38.sp, fontWeight = FontWeight.Light)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                StatBox("▲ ENVOYÉ", formatBytes(0), Blue, Modifier.weight(1f))
-                StatBox("▼ REÇU", formatBytes(0), Green, Modifier.weight(1f))
+                StatBox("▲ ENVOYÉ", formatBytes(up), Blue, Modifier.weight(1f))
+                StatBox("▼ REÇU", formatBytes(down), Green, Modifier.weight(1f))
             }
         }
 
