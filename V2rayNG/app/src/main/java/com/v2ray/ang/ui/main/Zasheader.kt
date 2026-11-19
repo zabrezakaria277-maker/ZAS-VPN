@@ -53,6 +53,7 @@ fun ZasHeader(
     onToggle: () -> Unit,
     testCountry: String? = null,
     testIp: String? = null,
+    onPing: () -> Unit = {},
 ) {
     val context = LocalContext.current
 
