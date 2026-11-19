@@ -51,6 +51,8 @@ fun ZasHeader(
     serverGuid: String?,
     statusText: String,
     onToggle: () -> Unit,
+    testCountry: String? = null,
+    testIp: String? = null,
 ) {
     val context = LocalContext.current
 
