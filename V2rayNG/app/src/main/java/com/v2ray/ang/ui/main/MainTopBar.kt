@@ -99,20 +99,13 @@ fun MainTopBar(
                 IconButton(onClick = { showMenu = true }) {
                     Icon(painterResource(R.drawable.ic_more_vert_24dp), contentDescription = stringResource(R.string.acc_more))
                 }
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false },
-                    scrollState = moreMenuScrollState,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier
-                        .heightIn(max = maxMenuHeight)
-                        .verticalScrollbar(moreMenuScrollState)
-                ) {
-                    MoreMenuContent { action ->
-                        showMenu = false
-                        onMoreMenuAction(action)
-                    }
-                }
+                ZasMoreMenu(
+    expanded = showMenu,
+    onDismiss = { showMenu = false },
+    onAction = onAction,
+    onMoreMenuAction = onMoreMenuAction,
+    onNavigate = onNavigate
+)
             }
         }
     )
