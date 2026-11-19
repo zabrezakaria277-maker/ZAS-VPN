@@ -34,9 +34,9 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 // À REMPLACER par tes vrais liens avant de valider
-private const val ZAS_SUPPORT_URL = "https://wa.me/226XXXXXXXX"
-private const val ZAS_RESELLER_URL = "https://wa.me/226XXXXXXXX?text=Je%20veux%20devenir%20revendeur%20ZAS%20VPN"
-private const val ZAS_SUGGEST_URL = "https://wa.me/226XXXXXXXX?text=Suggestion%20pour%20ZAS%20VPN%20%3A"
+private const val ZAS_SUPPORT_URL = "https://wa.me/22677200109"
+private const val ZAS_RESELLER_URL = "https://wa.me/22677200109?text=Je%20veux%20devenir%20revendeur%20ZAS%20VPN"
+private const val ZAS_SUGGEST_URL = "https://wa.me/22677200109?text=Suggestion%20pour%20ZAS%20VPN%20%3A"
 
 @Composable
 fun ZasMoreMenu(
@@ -62,7 +62,7 @@ fun ZasMoreMenu(
     ) {
         if (!advanced) {
             ZasMoreItem("📖", "Guide d'utilisation") { show("guide") }
-            ZasMoreItem("💳", "Abonnement") { show("subscription") }
+            ZasMoreItem("💳", "Acheté") { show("subscription") }
             ZasMoreItem("🔑", "Code d'activation") { show("activate") }
             ZasMoreItem("📍", "IP Finder") { show("ip") }
             ZasMoreItem("⚙️", "Paramètres") { advanced = false; onDismiss(); onNavigate(MainDestination.Settings) }
