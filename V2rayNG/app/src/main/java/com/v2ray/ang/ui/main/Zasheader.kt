@@ -139,6 +139,8 @@ fun ZasHeader(
         }
 
         Spacer(Modifier.height(10.dp))
+                ZasAutoPingCard(isRunning = isRunning, onPing = onPing)
+        Spacer(Modifier.height(10.dp))
         Column(
             Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(CardBg)
                 .border(1.dp, Blue, RoundedCornerShape(24.dp))
