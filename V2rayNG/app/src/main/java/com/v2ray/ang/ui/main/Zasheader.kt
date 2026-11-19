@@ -141,7 +141,7 @@ LaunchedEffect(isRunning) {
             if (showNet) {
                 InfoLine("Réseau", operator)
                 InfoLine("Type", netType)
-                InfoLine("Pays", country)
+                InfoLine("Pays", testCountry ?: country)
                 InfoLine("IP", ip)
             }
         }
