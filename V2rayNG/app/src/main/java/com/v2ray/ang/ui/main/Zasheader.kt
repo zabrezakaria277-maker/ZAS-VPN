@@ -142,7 +142,7 @@ LaunchedEffect(isRunning) {
                 InfoLine("Réseau", operator)
                 InfoLine("Type", netType)
                 InfoLine("Pays", testCountry ?: country)
-                InfoLine("IP", ip)
+                InfoLine("IP", testIp ?: ip)
             }
         }
         Spacer(Modifier.height(10.dp))
