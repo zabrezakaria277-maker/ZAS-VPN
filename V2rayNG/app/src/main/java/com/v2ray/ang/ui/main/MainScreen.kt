@@ -215,7 +215,8 @@ ZasHeader(
     isRunning = isRunning,
     serverGuid = selectedGuid,
     statusText = displayText,
-    onToggle = { onAction(MainAction.ToggleService) }
+    onToggle = { onAction(MainAction.ToggleService) },
+    onPing = { onAction(MainAction.TestCurrentServer) }
 )                  
                     if (groups.size > 1) {
                         GroupTabBar(
