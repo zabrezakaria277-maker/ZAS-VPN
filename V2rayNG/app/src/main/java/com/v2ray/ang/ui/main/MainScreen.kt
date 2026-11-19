@@ -184,6 +184,7 @@ fun MainScreen(
                     onSearchToggle = { show: Boolean -> showSearch = show },
                     onMenuClick = { scope.launch { drawerState.open() } },
                     onAction = onAction,
+                    onNavigate = onNavigate,
                     onMoreMenuAction = { action ->
                         when (action) {
                             MainMoreMenuAction.RestartService -> onAction(MainAction.RestartService)
