@@ -53,6 +53,8 @@ fun ZasHeader(
     onToggle: () -> Unit,
     testCountry: String? = null,
     testIp: String? = null,
+        testCountry = (uiState.status as? MainStatus.ConnectionTest)?.result?.country,
+    testIp = (uiState.status as? MainStatus.ConnectionTest)?.result?.ipAddress
 ) {
     val context = LocalContext.current
 
