@@ -1,4 +1,5 @@
 package com.v2ray.ang.ui.main
+import kotlinx.coroutines.delay
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
