@@ -1,9 +1,9 @@
 package com.v2ray.ang.ui.main
 
 import android.content.Context
-import android.net.TrafficStats
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.TrafficStats
 import android.telephony.TelephonyManager
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas
@@ -53,8 +53,6 @@ fun ZasHeader(
     onToggle: () -> Unit,
     testCountry: String? = null,
     testIp: String? = null,
-        testCountry = (uiState.status as? MainStatus.ConnectionTest)?.result?.country,
-    testIp = (uiState.status as? MainStatus.ConnectionTest)?.result?.ipAddress
 ) {
     val context = LocalContext.current
 
@@ -71,30 +69,37 @@ fun ZasHeader(
         }
     }
 
+    var up by remember { mutableStateOf(0L) }
+    var down by remember { mutableStateOf(0L) }
+    LaunchedEffect(isRunning) {
+        up = 0; down = 0
+        if (!isRunning) return@LaunchedEffect
+        val uid = android.os.Process.myUid()
+        val tx0 = TrafficStats.getUidTxBytes(uid)
+        val rx0 = TrafficStats.getUidRxBytes(uid)
+        if (tx0 < 0 || rx0 < 0) return@LaunchedEffect
+        while (true) {
+            delay(1000)
+            up = (TrafficStats.getUidTxBytes(uid) - tx0).coerceAtLeast(0)
+            down = (TrafficStats.getUidRxBytes(uid) - rx0).coerceAtLeast(0)
+        }
+    }
+
     var ip by remember { mutableStateOf("—") }
     var country by remember { mutableStateOf("—") }
     LaunchedEffect(isRunning) {
         ip = "…"; country = "…"
         delay(2000)
-        val r = withContext(Dispatchers.IO) { fetchIpInfo() }
+        var r: Pair<String, String>? = null
+        var tries = 0
+        while (r == null && tries < 3) {
+            r = withContext(Dispatchers.IO) { fetchIpInfo() }
+            if (r == null) delay(2000)
+            tries++
+        }
         ip = r?.first ?: "—"
         country = r?.second ?: "—"
     }
-    var up by remember { mutableStateOf(0L) }
-var down by remember { mutableStateOf(0L) }
-LaunchedEffect(isRunning) {
-    up = 0; down = 0
-    if (!isRunning) return@LaunchedEffect
-    val uid = android.os.Process.myUid()
-    val tx0 = TrafficStats.getUidTxBytes(uid)
-    val rx0 = TrafficStats.getUidRxBytes(uid)
-    if (tx0 < 0 || rx0 < 0) return@LaunchedEffect
-    while (true) {
-        delay(1000)
-        up = (TrafficStats.getUidTxBytes(uid) - tx0).coerceAtLeast(0)
-        down = (TrafficStats.getUidRxBytes(uid) - rx0).coerceAtLeast(0)
-    }
-}
 
     val operator = remember(isRunning) {
         (context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager)
@@ -218,13 +223,20 @@ private fun networkType(ctx: Context): String {
     return "—"
 }
 
-private fun fetchIpInfo(): Pair<String, String>? = try {
-    val c = URL("https://ipapi.co/json/").openConnection() as HttpURLConnection
-    c.connectTimeout = 6000
-    c.readTimeout = 6000
-    c.setRequestProperty("User-Agent", "Mozilla/5.0")
-    val o = JSONObject(c.inputStream.bufferedReader().use { it.readText() })
-    Pair(o.optString("ip", "—"), o.optString("country_name", "—"))
-} catch (e: Exception) {
-    null
+private fun fetchIpInfo(): Pair<String, String>? {
+    val urls = listOf("https://ipwho.is/", "https://ipapi.co/json/")
+    for (u in urls) {
+        try {
+            val c = URL(u).openConnection() as HttpURLConnection
+            c.connectTimeout = 6000
+            c.readTimeout = 6000
+            c.setRequestProperty("User-Agent", "Mozilla/5.0")
+            val o = JSONObject(c.inputStream.bufferedReader().use { it.readText() })
+            val ip = o.optString("ip", "")
+            val country = o.optString("country_name", o.optString("country", ""))
+            if (ip.isNotBlank()) return Pair(ip, country.ifBlank { "—" })
+        } catch (e: Exception) {
+        }
+    }
+    return null
 }
