@@ -114,7 +114,7 @@ fun MainScreen(
                 }
             }
     }
-
+    val zasHeaderScroll = remember { ZasHeaderScroll() }
     MainDialogs(
         showDelAllConfirm = showDelAllConfirm,
         onDismissDelAll = { showDelAllConfirm = false },
@@ -208,11 +208,13 @@ fun MainScreen(
             val layoutDirection = LocalLayoutDirection.current
             if (groups.isNotEmpty()) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                ) {
-ZasHeader(
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(innerPadding)
+        .nestedScroll(zasHeaderScroll.connection)
+) {
+ZasCollapsibleHeader(
+    scroll = zasHeaderScroll,
     isRunning = isRunning,
     serverGuid = selectedGuid,
     statusText = displayText,
