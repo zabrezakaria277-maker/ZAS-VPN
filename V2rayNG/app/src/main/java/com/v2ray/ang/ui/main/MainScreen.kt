@@ -1,4 +1,5 @@
 package com.v2ray.ang.ui.main
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import kotlinx.coroutines.delay
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.BlendMode
