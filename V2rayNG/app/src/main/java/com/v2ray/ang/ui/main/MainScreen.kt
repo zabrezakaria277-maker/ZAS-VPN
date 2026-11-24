@@ -219,7 +219,8 @@ ZasCollapsibleHeader(
     serverGuid = selectedGuid,
     statusText = displayText,
     onToggle = { onAction(MainAction.ToggleService) },
-    onPing = { onAction(MainAction.TestCurrentServer) }
+    onPing = { onAction(MainAction.TestCurrentServer) },
+    onExpired = { onAction(MainAction.ToggleService) }
 )                  
                     if (groups.size > 1) {
                         GroupTabBar(
