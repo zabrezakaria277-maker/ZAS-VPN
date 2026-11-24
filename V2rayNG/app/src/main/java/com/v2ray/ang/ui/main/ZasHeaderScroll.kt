@@ -1,5 +1,8 @@
 package com.v2ray.ang.ui.main
 
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -50,12 +53,20 @@ fun ZasCollapsibleHeader(
     statusText: String,
     onToggle: () -> Unit,
     onPing: () -> Unit = {},
+    onExpired: () -> Unit = {},
     testCountry: String? = null,
     testIp: String? = null,
 ) {
+    val dragState = rememberScrollableState { delta ->
+        val old = scroll.offset
+        val new = (old + delta).coerceIn(-scroll.maxPx, 0f)
+        scroll.offset = new
+        new - old
+    }
     Box(
         Modifier
             .clipToBounds()
+            .scrollable(dragState, Orientation.Vertical)
             .layout { measurable, constraints ->
                 val p = measurable.measure(
                     constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
@@ -74,6 +85,7 @@ fun ZasCollapsibleHeader(
             statusText = statusText,
             onToggle = onToggle,
             onPing = onPing,
+            onExpired = onExpired,
             testCountry = testCountry,
             testIp = testIp
         )
