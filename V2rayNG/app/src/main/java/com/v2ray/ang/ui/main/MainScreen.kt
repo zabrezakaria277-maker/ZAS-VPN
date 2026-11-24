@@ -115,6 +115,7 @@ fun MainScreen(
             }
     }
     val zasHeaderScroll = remember { ZasHeaderScroll() }
+    ZasAutoSync(mainViewModel = mainViewModel, groupId = uiState.selectedGroupId, onAction = onAction)
     MainDialogs(
         showDelAllConfirm = showDelAllConfirm,
         onDismissDelAll = { showDelAllConfirm = false },
