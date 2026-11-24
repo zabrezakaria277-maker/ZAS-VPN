@@ -596,6 +596,7 @@ class MainViewModel(
             toastError("Ce fichier a expiré")
             return
         }
+        ZasExpiry.remember(pkg)
         if (pkg.note.isNotBlank()) toast(pkg.note)
         importBatchConfig(pkg.links)
     }
