@@ -92,6 +92,7 @@ class MainActivity : HelperBaseComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ZasExpiry.init(applicationContext)
         mainViewModel.onAction(MainAction.Initialize)
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
@@ -159,11 +160,18 @@ class MainActivity : HelperBaseComponentActivity() {
     }
 
     private fun handleFabAction() {
-        if (mainViewModel.uiState.value.isRunning) {
-            LauncherManager.stopService(this)
-        } else {
-            requestServiceStart()
+    if (mainViewModel.uiState.value.isRunning) {
+        LauncherManager.stopService(this)
+    } else {
+        if (ZasExpiry.isExpired(this)) {
+            android.widget.Toast.makeText(
+                this, "Abonnement expiré. Contactez le support.",
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+            return
         }
+        requestServiceStart()
+    }
     }
 
     private fun requestServiceStart() {
