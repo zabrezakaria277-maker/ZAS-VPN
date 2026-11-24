@@ -67,7 +67,7 @@ fun ZasMoreMenu(
             ZasMoreItem("📍", "IP Finder") { show("ip") }
             ZasMoreItem("⚙️", "Paramètres") { advanced = false; onDismiss(); onNavigate(MainDestination.Settings) }
             ZasMoreItem("🔗", "Abonnements") { advanced = false; onDismiss(); onNavigate(MainDestination.Subscriptions) }
-            ZasMoreItem("🔄", "Mettre à jour les serveurs") { adv(MainMoreMenuAction.UpdateSubscriptions) }
+            ZasMoreItem("🔄", "Mettre à jour les serveurs") { advanced = false; onDismiss(); ZasSync.request() }
             ZasMoreItem("🤝", "Devenir revendeur") { link(ZAS_RESELLER_URL) }
             ZasMoreItem("🎧", "Contacter le support") { link(ZAS_SUPPORT_URL) }
             ZasMoreItem("💡", "Suggestions") { link(ZAS_SUGGEST_URL) }
