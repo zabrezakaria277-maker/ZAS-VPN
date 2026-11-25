@@ -114,9 +114,12 @@ class MainActivity : HelperBaseComponentActivity() {
                     MainAction.RestartService -> LauncherManager.restartServiceOrStart(this, ::requestServiceStart)
                     MainAction.LocateSelectedServer -> mainViewModel.triggerLocateSelectedServer()
                     is MainAction.SelectServer -> setSelectServer(action.guid)
-                    is MainAction.EditServer -> editServer(action.guid, action.profile)
-                    is MainAction.ShareClipboard -> shareToClipboard(action.guid)
-                    is MainAction.ShareFullContent -> shareFullContentAsync(action.guid)
+                    is MainAction.EditServer ->
+                       if (ZasLock.isLocked(action.profile.remarks)) ZasLock.toast(this) else editServer(action.guid, action.profile)
+                    is MainAction.ShareClipboard ->
+                       if (ZasLock.isLockedGuid(action.guid)) ZasLock.toast(this) else { shareToClipboard(action.guid) }
+                    is MainAction.ShareFullContent ->
+                       if (ZasLock.isLockedGuid(action.guid)) ZasLock.toast(this) else shareFullContentAsync(action.guid)
                     else -> mainViewModel.onAction(action)
                 }
             },
