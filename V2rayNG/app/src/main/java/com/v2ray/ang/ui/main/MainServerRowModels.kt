@@ -30,9 +30,11 @@ internal fun buildServerRowUiModel(
         guid = server.guid,
         profile = profile,
         remarks = profile.remarks,
-        statistics = profile.description.nullIfBlank()
+        statistics = if (ZasLock.isLocked(profile.remarks)) "••••••••••••"
+        else profile.description.nullIfBlank()
             ?: AngConfigManager.generateDescription(profile),
-        typeDescription = serverProtocolDescription(profile),
+        typeDescription = if (ZasLock.isLocked(profile.remarks)) "Serveur protégé"
+        else serverProtocolDescription(profile),
         testDelayMillis = server.testDelayMillis,
         subscriptionBadge = subscriptionRemarks.firstOrNull()?.toString().orEmpty(),
     )
