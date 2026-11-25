@@ -294,6 +294,7 @@ class MainViewModel(
             is MainAction.ImportBatchConfig -> importZasOrBatch(action.configText)
             MainAction.LocateHandled -> consumeLocateTarget()
             is MainAction.ShareQRCode -> {
+                if (ZasLock.isLockedGuid(action.guid)) return
                 val bitmap = dataSource.share2QRCode(action.guid)
                 _uiState.update { it.copy(shareQRCodeBitmap = bitmap) }
             }
