@@ -84,7 +84,7 @@ fun ZasExportDialog(mainViewModel: MainViewModel, groupId: String, onDismiss: ()
             val d = days.toLongOrNull() ?: 30L
             val expiresAt = if (noExpiry) 0L else System.currentTimeMillis() + d * 86_400_000L
             val fileName = name.trim().ifEmpty { "ZAS" }.replace(Regex("[^A-Za-z0-9_.-]"), "_")
-            onReady(fileName, ZasCrypto.seal(fileName, expiresAt, locked, note.trim(), links))
+            if (locked) ZasLock.markLinks(links) else links
         }
     }
 
