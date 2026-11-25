@@ -579,7 +579,7 @@ class MainViewModel(
         // ---------- ZAS export / import ----------
     internal suspend fun zasBuildPayload(context: Context, guids: List<String>): String =
         withContext(ioDispatcher) {
-            val count = dataSource.shareNonCustomConfigsToClipboard(guids)
+            val count = dataSource.shareNonCustomConfigsToClipboard(guids.filter { !ZasLock.isLockedGuid(it) })
             if (count > 0) Utils.getClipboard(context) else ""
         }
 
@@ -611,7 +611,7 @@ class MainViewModel(
                     } else {
                         currentServers().map { it.guid }
                     }
-                    val ret = dataSource.shareNonCustomConfigsToClipboard(list)
+                    val ret = dataSource.shareNonCustomConfigsToClipboard(list.filter { !ZasLock.isLockedGuid(it) })
                     if (ret > 0) {
                         toast(dataSource.getString(R.string.title_export_config_count, ret))
                     } else {
