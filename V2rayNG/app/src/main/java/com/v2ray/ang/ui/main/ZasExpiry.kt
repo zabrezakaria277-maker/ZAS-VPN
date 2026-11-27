@@ -1,90 +1,78 @@
 package com.v2ray.ang.ui.main
 
 import android.content.Context
-import android.os.Build
-import android.provider.Settings
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.UUID
+import android.os.SystemClock
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
-sealed class ZasActivationResult {
-    data class Success(
-        val remainingMs: Long,
-        val maxDevices: Int,
-        val devicesUsed: Int,
-        val links: List<String>
-    ) : ZasActivationResult()
+object ZasExpiry {
+    // true : l'application exige un code valide (mets false pour tes tests)
+    const val REQUIRE_CODE = true
 
-    data class Failure(val error: String, val maxDevices: Int = 0) : ZasActivationResult()
-}
+    private const val PREFS = "zas_prefs"
+    private const val K_REM = "zas_rem_ms"
+    private const val K_ELAPSED = "zas_elapsed"
+    private const val K_WALL = "zas_wall"
+    private const val K_CODE = "zas_code"
 
-object ZasActivation {
-    const val ACTIVATE_URL = "https://zas-vpn-server-atlas.lovable.app/api/public/activate"
-    // À REMPLACER par ton numéro d'assistance WhatsApp
-    const val SUPPORT_URL = "https://wa.me/22677200109"
+    private var appContext: Context? = null
 
-    fun deviceId(context: Context): String {
-        val androidId = try {
-            Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-        } catch (e: Exception) {
-            null
-        }
-        if (!androidId.isNullOrBlank()) return androidId
-        val p = context.getSharedPreferences("zas_prefs", Context.MODE_PRIVATE)
-        return p.getString("zas_device_id", null)?.takeIf { it.isNotBlank() }
-            ?: UUID.randomUUID().toString().also { p.edit().putString("zas_device_id", it).apply() }
+    var tick by mutableStateOf(0)
+        private set
+
+    fun init(context: Context) {
+        appContext = context.applicationContext
     }
 
-    suspend fun activate(context: Context, rawCode: String): ZasActivationResult =
-        withContext(Dispatchers.IO) {
-            try {
-                val body = JSONObject()
-                    .put("code", rawCode.trim())
-                    .put("device_id", deviceId(context))
-                    .put("device_name", Build.MODEL ?: "Android")
-                    .toString()
-                val c = URL(ACTIVATE_URL).openConnection() as HttpURLConnection
-                c.requestMethod = "POST"
-                c.connectTimeout = 12000
-                c.readTimeout = 12000
-                c.doOutput = true
-                c.setRequestProperty("Content-Type", "application/json")
-                c.setRequestProperty("User-Agent", "ZAS-VPN")
-                c.outputStream.use { it.write(body.toByteArray()) }
-                val status = c.responseCode
-                val stream = if (status in 200..299) c.inputStream else c.errorStream
-                val text = stream?.bufferedReader()?.use { it.readText() } ?: ""
-                val json = JSONObject(text)
-                if (json.optBoolean("ok", false)) {
-                    val arr = json.optJSONArray("links")
-                    val links = ArrayList<String>()
-                    if (arr != null) for (i in 0 until arr.length()) links.add(arr.getString(i))
-                    ZasActivationResult.Success(
-                        remainingMs = json.optLong("remaining_seconds", 0L) * 1000L,
-                        maxDevices = json.optInt("max_devices", 1),
-                        devicesUsed = json.optInt("devices_used", 1),
-                        links = links
-                    )
-                } else {
-                    ZasActivationResult.Failure(
-                        json.optString("error", "server_error"),
-                        json.optInt("max_devices", 0)
-                    )
-                }
-            } catch (e: Exception) {
-                ZasActivationResult.Failure("network")
-            }
-        }
+    private fun prefs(c: Context) = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
-    fun message(f: ZasActivationResult.Failure): String = when (f.error) {
-        "invalid_code", "invalid_request" -> "Code invalide. Vérifiez-le ou contactez le support."
-        "expired" -> "Ce code a expiré."
-        "device_limit" -> "Ce code est déjà utilisé sur le nombre maximum d'appareils (${f.maxDevices})."
-        "too_many_attempts" -> "Trop de tentatives. Réessayez dans quelques minutes."
-        "network" -> "Connexion impossible. Vérifiez votre Internet."
-        else -> "Erreur du serveur. Réessayez plus tard."
+    fun code(c: Context): String = prefs(c).getString(K_CODE, "") ?: ""
+
+    fun saveFromServer(c: Context, code: String, remainingMs: Long) {
+        prefs(c).edit()
+            .putString(K_CODE, code)
+            .putLong(K_REM, remainingMs)
+            .putLong(K_ELAPSED, SystemClock.elapsedRealtime())
+            .putLong(K_WALL, System.currentTimeMillis())
+            .apply()
+        tick++
+    }
+
+    fun expireNow(c: Context) {
+        prefs(c).edit()
+            .putLong(K_REM, 0L)
+            .putLong(K_ELAPSED, SystemClock.elapsedRealtime())
+            .putLong(K_WALL, System.currentTimeMillis())
+            .apply()
+        tick++
+    }
+
+    // null : aucun code n'a jamais été activé
+    fun remainingMs(c: Context): Long? {
+        val p = prefs(c)
+        if (!p.contains(K_REM)) return null
+        val base = p.getLong(K_REM, 0L)
+        val e0 = p.getLong(K_ELAPSED, 0L)
+        val w0 = p.getLong(K_WALL, 0L)
+        val e = SystemClock.elapsedRealtime()
+        val passed = if (e >= e0) e - e0 else (System.currentTimeMillis() - w0).coerceAtLeast(0L)
+        return (base - passed).coerceAtLeast(0L)
+    }
+
+    fun hasActive(c: Context): Boolean = (remainingMs(c) ?: 0L) > 0L
+
+    fun isExpired(c: Context): Boolean = remainingMs(c)?.let { it <= 0L } == true
+
+    fun canUse(c: Context): Boolean = if (REQUIRE_CODE) hasActive(c) else !isExpired(c)
+
+    // Compatibilité avec l'en-tête : expiration absolue (0 = aucun abonnement)
+    fun get(context: Context): Long {
+        val r = remainingMs(context) ?: return 0L
+        return System.currentTimeMillis() + r
+    }
+
+    // Les anciens fichiers .zas n'accordent plus d'accès : seul un code du panel le fait
+    fun remember(pkg: ZasPackage) {
     }
 }
