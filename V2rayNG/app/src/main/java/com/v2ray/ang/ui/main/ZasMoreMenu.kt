@@ -63,7 +63,7 @@ fun ZasMoreMenu(
         if (!advanced) {
             ZasMoreItem("📖", "Guide d'utilisation") { show("guide") }
             ZasMoreItem("💳", "Acheté") { show("subscription") }
-            ZasMoreItem("🔑", "Code d'activation") { show("activate") }
+            ZasMoreItem("🔑", "Code d'activation") { advanced = false; onDismiss(); ZasGate.open() }
             ZasMoreItem("📍", "IP Finder") { show("ip") }
             ZasMoreItem("⚙️", "Paramètres") { advanced = false; onDismiss(); onNavigate(MainDestination.Settings) }
             ZasMoreItem("🔗", "Abonnements") { advanced = false; onDismiss(); onNavigate(MainDestination.Subscriptions) }
