@@ -359,7 +359,7 @@ private fun ServerListItem(
                             Modifier.size(24.dp)
                         )
                     }
-                } else {
+             } else if (!row.remarks.startsWith("🔒")) {
                     IconButton(onClick = { actions.share(row.guid, row.profile) }, Modifier.size(36.dp)) {
                         Icon(
                             painterResource(R.drawable.ic_share_24dp),
