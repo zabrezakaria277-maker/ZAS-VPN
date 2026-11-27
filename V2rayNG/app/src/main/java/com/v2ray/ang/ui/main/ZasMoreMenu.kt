@@ -108,7 +108,7 @@ fun ZasMoreMenu(
         "activate" -> {
             var code by remember { mutableStateOf("") }
             ZasInfoDialog(
-            ZasMoreItem("🔑", "Code d'activation") { advanced = false; onDismiss(); ZasGate.open() }
+            "Code d'activation", close, confirmLabel = "Activer",
                 onConfirm = {
                     if (code.isNotBlank()) onAction(MainAction.ImportBatchConfig(code.trim()))
                     close()
