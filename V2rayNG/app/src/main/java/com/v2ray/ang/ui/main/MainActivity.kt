@@ -166,7 +166,7 @@ class MainActivity : HelperBaseComponentActivity() {
     if (mainViewModel.uiState.value.isRunning) {
         LauncherManager.stopService(this)
     } else {
-        if (ZasExpiry.isExpired(this)) {
+                if (!ZasExpiry.canUse(this)) {
             android.widget.Toast.makeText(
                 this, "Abonnement expiré. Contactez le support.",
                 android.widget.Toast.LENGTH_LONG
