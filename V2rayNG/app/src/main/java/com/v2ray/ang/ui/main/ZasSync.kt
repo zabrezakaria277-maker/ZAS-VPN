@@ -1,7 +1,6 @@
 package com.v2ray.ang.ui.main
 
 import android.content.Context
-import android.util.Base64
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -11,37 +10,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.v2ray.ang.dto.entities.ServersCache
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
 import java.net.URLDecoder
+import android.util.Base64
 
 object ZasSync {
-    // À REMPLACER par l'adresse d'abonnement de ZAS PANEL
-    const val URL_SYNC = "https://zas-vpn-server-atlas.lovable.app/api/public/sub?t=fd925db8e2878cdcebc26e2f359caf3dd71e0440cfb5cfc1307ceb8a3ba4a97c"
-
     private const val PREFS = "zas_prefs"
     private const val KEY_NAMES = "zas_synced_names"
 
     var trigger by mutableStateOf(0)
-    fun request() { trigger++ }
-
-    private suspend fun fetchLinks(): List<String>? = withContext(Dispatchers.IO) {
-        try {
-            val c = URL(URL_SYNC.trim()).openConnection() as HttpURLConnection
-            c.connectTimeout = 10000
-            c.readTimeout = 10000
-            c.setRequestProperty("User-Agent", "ZAS-VPN")
-            if (c.responseCode != 200) return@withContext null
-            val body = c.inputStream.bufferedReader().use { it.readText() }.trim()
-            val decoded = if (body.contains("://")) body else String(Base64.decode(body, Base64.DEFAULT))
-            decoded.lines().map { it.trim() }.filter { it.contains("://") }
-        } catch (e: Exception) {
-            null
-        }
+    fun request() {
+        trigger++
     }
 
     private fun linkName(link: String): String {
@@ -70,9 +50,28 @@ object ZasSync {
         currentServers: () -> List<ServersCache>,
         onAction: (MainAction) -> Unit
     ) {
-        val links = fetchLinks() ?: return
-        if (links.isEmpty()) return
+        val saved = ZasExpiry.code(context)
+        if (saved.isBlank()) return
+        when (val r = ZasActivation.activate(context, saved)) {
+            is ZasActivationResult.Failure -> {
+                if (r.error == "invalid_code" || r.error == "expired" || r.error == "device_limit") {
+                    ZasExpiry.expireNow(context)
+                }
+            }
+            is ZasActivationResult.Success -> {
+                ZasExpiry.saveFromServer(context, saved, r.remainingMs)
+                applyLinks(context, r.links, currentServers, onAction)
+            }
+        }
+    }
 
+    private suspend fun applyLinks(
+        context: Context,
+        links: List<String>,
+        currentServers: () -> List<ServersCache>,
+        onAction: (MainAction) -> Unit
+    ) {
+        if (links.isEmpty()) return
         var waited = 0
         while (currentServers().isEmpty() && waited < 8000) {
             delay(500)
@@ -80,7 +79,6 @@ object ZasSync {
         }
         val current = currentServers()
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
         val newNames = links.map { linkName(it) }
         val oldNames = prefs.getStringSet(KEY_NAMES, emptySet()) ?: emptySet()
         val have = current.map { it.profile.remarks.trim() }.toSet()
