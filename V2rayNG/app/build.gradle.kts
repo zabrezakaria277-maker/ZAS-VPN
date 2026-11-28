@@ -38,7 +38,24 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("zas") {
+            val ksPath = System.getenv("ZAS_KEYSTORE_PATH")
+            if (ksPath != null) {
+                storeFile = file(ksPath)
+                storePassword = System.getenv("ZAS_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("ZAS_KEY_ALIAS")
+                keyPassword = System.getenv("ZAS_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            if (System.getenv("ZAS_KEYSTORE_PATH") != null) {
+                signingConfig = signingConfigs.getByName("zas")
+            }
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
