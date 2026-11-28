@@ -92,6 +92,7 @@ jobs:
       run: |
         VC=$((750 + ${{ github.run_number }}))
         sed -i "s/versionCode = 750/versionCode = $VC/" ${{ github.workspace }}/V2rayNG/app/build.gradle.kts
+        echo "ZAS_VC=$VC" >> $GITHUB_ENV
         echo "versionCode = $VC"
 
     - name: Build APK
@@ -111,6 +112,21 @@ jobs:
       with:
         name: debug-apks
         path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/**/*.apk
+
+    - name: Publish release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        mkdir -p "$RUNNER_TEMP/rel"
+        find "${{ github.workspace }}/V2rayNG/app/build/outputs/apk" -name '*.apk' -exec cp {} "$RUNNER_TEMP/rel/" \;
+        ls -l "$RUNNER_TEMP/rel"
+        gh release delete "build-${ZAS_VC}" --repo "${{ github.repository }}" --cleanup-tag -y || true
+        gh release create "build-${ZAS_VC}" "$RUNNER_TEMP"/rel/*.apk \
+          --repo "${{ github.repository }}" \
+          --target "${{ github.sha }}" \
+          --title "Build ${ZAS_VC}" \
+          --notes "ZAS VPN build ${ZAS_VC}" \
+          --latest
 
   sign-and-release:
     needs: build
