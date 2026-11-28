@@ -40,7 +40,6 @@ jobs:
         sed -i '10i\
         \
             ndkVersion = "30.0.16248370"' ${{ github.workspace }}/V2rayNG/app/build.gradle.kts
-
     - name: Restore cached libhevtun
       id: cache-libhevtun-restore
       uses: actions/cache/restore@v6
@@ -63,7 +62,6 @@ jobs:
     - name: Copy libhevtun
       run: |
         cp -r ${{ github.workspace }}/libs ${{ github.workspace }}/V2rayNG/app
-
     - name: Fetch AndroidLibXrayLite tag
       run: |
         pushd AndroidLibXrayLite
@@ -71,7 +69,6 @@ jobs:
         echo "Current tag in this repo: $CURRENT_TAG"
         echo "CURRENT_TAG=$CURRENT_TAG" >> $GITHUB_ENV
         popd
-
     - name: Download libv2ray
       uses: robinraju/release-downloader@v1.13
       with:
@@ -86,15 +83,22 @@ jobs:
         distribution: 'temurin'
         java-version: '21'
 
-    - name: Decode Keystore
-      if: false
-      uses: timheuer/base64-to-file@v2.0.0
-      id: android_keystore
-      with:
-        fileName: "android_keystore.jks"
-        encodedString: ${{ secrets.APP_KEYSTORE_BASE64 }}
+    - name: Decode ZAS keystore
+      run: |
+        echo "${{ secrets.ZAS_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/zas.jks"
+        echo "ZAS_KEYSTORE_PATH=$RUNNER_TEMP/zas.jks" >> $GITHUB_ENV
+
+    - name: Set versionCode from run number
+      run: |
+        VC=$((750 + ${{ github.run_number }}))
+        sed -i "s/versionCode = 750/versionCode = $VC/" ${{ github.workspace }}/V2rayNG/app/build.gradle.kts
+        echo "versionCode = $VC"
 
     - name: Build APK
+      env:
+        ZAS_KEYSTORE_PASSWORD: ${{ secrets.ZAS_KEYSTORE_PASSWORD }}
+        ZAS_KEY_ALIAS: ${{ secrets.ZAS_KEY_ALIAS }}
+        ZAS_KEY_PASSWORD: ${{ secrets.ZAS_KEY_PASSWORD }}
       run: |
         cd ${{ github.workspace }}/V2rayNG
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
@@ -150,18 +154,16 @@ jobs:
           printf '%s' "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
           KEY=$(gpg --list-secret-keys --with-colons | awk -F: '/^fpr:/ {print $10; exit}')
           mkdir -p release-files
-
           find release -type f -name '*.apk' | while read apk; do
             cp "$apk" release-files/
             gpg --batch --yes --local-user "$KEY" --detach-sign --output "release-files/$(basename "$apk").sig" "$apk"
           done
-
           gpg --armor --export "$KEY" > release-files/v2rayN-public-key.asc
-
       - name: Upload APKs, signatures and public key to release
         uses: svenstaro/upload-release-action@v2
         with:
           file: release-files/*
           tag: ${{ inputs.release_tag }}
+          file_policy: ""
           file_glob: true
           prerelease: true
