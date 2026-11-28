@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,34 +45,38 @@ fun ZasAutoPingCard(isRunning: Boolean, onPing: () -> Unit) {
         }
     }
 
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xCC0E1A33))
-            .border(1.dp, Color(0xFF2F3B54), RoundedCornerShape(24.dp))
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text("📡", fontSize = 24.sp)
-        Spacer(Modifier.width(12.dp))
-        Column(Modifier.weight(1f)) {
-            Text("Auto Ping", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold)
-            Text(
-                "Maintient le tunnel actif avec un contrôle réseau périodique",
-                color = Color(0xFFA9B4CC), fontSize = 12.sp
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color(0xCC0E1A33))
+                .border(1.dp, Color(0xFF2F3B54), RoundedCornerShape(24.dp))
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("📡", fontSize = 24.sp)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text("Auto Ping", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "Maintient le tunnel actif avec un contrôle réseau périodique",
+                    color = Color(0xFFA9B4CC), fontSize = 12.sp
+                )
+            }
+            Switch(
+                checked = enabled,
+                onCheckedChange = {
+                    enabled = it
+                    prefs.edit().putBoolean("auto_ping", it).apply()
+                },
+                colors = SwitchDefaults.colors(
+                    checkedTrackColor = Color(0xFF00D4C0),
+                    checkedThumbColor = Color.White
+                )
             )
         }
-        Switch(
-            checked = enabled,
-            onCheckedChange = {
-                enabled = it
-                prefs.edit().putBoolean("auto_ping", it).apply()
-            },
-            colors = SwitchDefaults.colors(
-                checkedTrackColor = Color(0xFF00D4C0),
-                checkedThumbColor = Color.White
-            )
-        )
+        Spacer(Modifier.height(8.dp))
+        ZasIpCard()
     }
 }
